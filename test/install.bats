@@ -169,14 +169,11 @@ setup() { setup_fake_home; }
 # --- boucle interactive ------------------------------------------------------
 
 @test "la boucle redemande après un chemin invalide puis accepte le bon" {
-    if ! command -v script > /dev/null 2>&1; then
-        skip "la commande 'script' (pty) est absente"
-    fi
     local good; good="$(fake_ccstatusline 2.2.19 "$HOME/cache")"
     printf '/tmp/nexistepas\n%s\n' "$good" > "$BATS_TEST_TMPDIR/replies"
 
-    PATH="/usr/bin:/bin" run_in_pty "'$INSTALL'" \
-        < "$BATS_TEST_TMPDIR/replies" > "$BATS_TEST_TMPDIR/out" 2>&1
+    PATH="/usr/bin:/bin" run_in_pty "$BATS_TEST_TMPDIR/replies" "$INSTALL" \
+        > "$BATS_TEST_TMPDIR/out" 2>&1
 
     grep -q "n'existe pas" "$BATS_TEST_TMPDIR/out"
     [ "$(json_get "$(claude_settings)" .statusLine.command)" = "$good" ]

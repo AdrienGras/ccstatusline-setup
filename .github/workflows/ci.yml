@@ -18,22 +18,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Installation locale plutôt que globale : un `npm install -g` échoue en
+      # EACCES sur l'image Ubuntu, qui n'autorise pas l'écriture des pages de
+      # manuel sous /usr/local.
       - name: Installer bats
-        run: npm install -g bats
+        run: npm install --no-save bats
 
       # jq est présent sur les deux images GitHub, mais l'installeur en dépend :
       # autant échouer ici avec un message clair plutôt qu'au milieu d'un test.
       - name: Vérifier les prérequis
         run: |
           set -eu
-          for tool in jq python3 git bats; do
+          for tool in jq python3 git; do
             command -v "$tool" >/dev/null 2>&1 || { echo "manquant : $tool"; exit 1; }
             printf '%-8s %s\n' "$tool" "$(command -v "$tool")"
           done
           echo "bash     $(bash --version | head -1)"
 
       - name: Tests
-        run: bats --print-output-on-failure test/
+        run: npx bats --print-output-on-failure test/
 
   lint:
     name: lint

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Aides communes aux suites bats.
 
+# shellcheck disable=SC2034  # consommées par les fichiers .bats
 REPO_ROOT="$(cd "$(dirname "${BATS_TEST_FILENAME}")/.." && pwd)"
 INSTALL="$REPO_ROOT/install.sh"
 CONFIG_DIR="$REPO_ROOT/config"
@@ -38,12 +39,8 @@ ccsl_settings()   { printf '%s\n' "$XDG_CONFIG_HOME/ccstatusline/settings.json";
 # Valeur d'une clé dans un JSON, ou chaîne vide.
 json_get() { jq -r "$2 // empty" "$1" 2>/dev/null; }
 
-# Exécute une commande dans un pseudo-terminal, pour les tests interactifs.
-# La syntaxe de `script` diffère entre util-linux et BSD (macOS).
-run_in_pty() { # commande (chaîne shell)
-    if [ "$(uname)" = "Darwin" ]; then
-        script -q /dev/null /bin/sh -c "$1"
-    else
-        script -qec "$1" /dev/null
-    fi
+# Exécute une commande dans un pseudo-terminal, en lui injectant un fichier de
+# réponses. Voir test/pty_run.py pour la raison de ne pas utiliser `script`.
+run_in_pty() { # fichier-de-réponses, commande [args...]
+    python3 "$(dirname "${BATS_TEST_FILENAME}")/pty_run.py" "$@"
 }

@@ -64,6 +64,7 @@ expand_path() {
     _p="$1"
     _p="${_p%\"}"; _p="${_p#\"}"
     _p="${_p%\'}"; _p="${_p#\'}"
+    # shellcheck disable=SC2088  # motif de case : le tilde doit rester littéral
     case "$_p" in
         "~")   printf '%s\n' "$HOME" ;;
         "~/"*) printf '%s\n' "$HOME/${_p#\~/}" ;;
