@@ -9,7 +9,7 @@ empaquetée pour s'installer ailleurs en deux commandes. macOS et Linux.
 
 - 📊 **Un contexte lisible au 1/8 de cellule** — la barre avance en continu au lieu de sauter par crans de 10 %, et vire du vert au rouge à mesure qu'elle se remplit.
 - 🔥 **Une conso projetée, pas juste un pourcentage** — `→ 103%` dit où tu finiras au rythme actuel ; `⚠ mur 2j6h` dit quand tu taperas la limite.
-- 🎯 **Un repère d'avancement** — le `┊` marque où tu *devrais* en être dans la fenêtre. À gauche du remplissage, tu brûles trop vite.
+- 🎯 **Un repère d'avancement** — le `┊` marque où tu *devrais* en être dans la fenêtre. Quand le remplissage le dépasse sur la droite, tu brûles plus vite que le temps ne passe.
 - 🕐 **Les deux fenêtres de quota d'un coup d'œil** — session de 5 h et semaine glissante, côte à côte.
 - 🧩 **Zéro dépendance** — deux scripts Python de bibliothèque standard, rien à installer, rien à mettre à jour.
 - 🛟 **Une installation qui ne casse rien** — seule la clé `statusLine` est fusionnée dans ta config Claude Code, et tout fichier écrasé est sauvegardé.
@@ -71,7 +71,7 @@ Session ▕██████┊   ▏  68% → 100% ✓ +12m ⧗1h36
 
 | Élément | Sens |
 |---|---|
-| `▕██████┊   ▏` | remplissage = quota consommé ; `┊` = où tu devrais en être |
+| `▕██████┊   ▏` | remplissage = quota consommé ; `┊` = où tu devrais en être. Remplissage à droite du `┊` = trop rapide, à gauche = confortable |
 | `68%` | consommation réelle de la fenêtre |
 | `→ 100%` | projection à la fin de la fenêtre, au rythme actuel |
 | `✓ +12m` | il te reste 12 min de marge ; `⚠ mur 1h` = tu tapes la limite dans 1 h |
