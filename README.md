@@ -1,89 +1,103 @@
 # ccstatusline-setup
 
-Ma configuration [ccstatusline](https://github.com/sirmalloc/ccstatusline) pour Claude Code,
-empaquetée pour être déployée sur une autre machine en deux commandes.
+Ma statusline [ccstatusline](https://github.com/sirmalloc/ccstatusline) pour Claude Code,
+empaquetée pour s'installer ailleurs en deux commandes. macOS et Linux.
 
-Deux lignes : modèle, effort de réflexion, barre de contexte, tokens, coût de session,
-répertoire courant et état git sur la première ; consommation de session et hebdomadaire
-sur la seconde.
+```
+ Opus 5  Thinking: high  Context: │██████████▌      │ 104k/200k (52%)  128.4k  $1.84      ~/mon-projet  ⎇ main  (+12,-3)
+ Session ▕███████┊  ▏ 68% → 91% ✓ +34m ⧗1h37                      Weekly ▕████▌┊    ▏ 44% → 103% ⚠ mur 2j6h ⧗3j3h
+```
+
+Ligne 1 : le contexte qui se remplit, en vert→jaune→rouge.
+Ligne 2 : ta consommation réelle **et sa projection** — le `┊` marque où tu devrais en être,
+`→ 103%` dit où tu finiras au rythme actuel, et `⚠ mur 2j6h` te dit quand tu taperas la limite.
 
 ## Installation
 
 ```bash
-git clone https://github.com/AdrienGras/ccstatusline-setup.git
+git clone git@github.com:AdrienGras/ccstatusline-setup.git
 cd ccstatusline-setup
 ./install.sh
 ```
 
-Puis redémarre Claude Code.
+Redémarre Claude Code, c'est tout.
+
+Le script trouve ton binaire ccstatusline tout seul. S'il n'y arrive pas, il te demande
+son chemin et vérifie qu'il répond avant d'aller plus loin. Rien n'est écrasé sans sauvegarde,
+et tu peux le relancer autant de fois que tu veux.
 
 ## Prérequis
 
-| Outil | Pourquoi |
-|---|---|
-| `ccstatusline` | le binaire lui-même — voir ci-dessous |
-| `python3` | les deux barres sont des scripts Python (bibliothèque standard uniquement) |
-| `jq` | fusion non destructive de `~/.claude/settings.json` |
-| `git` | pour cloner |
-
-`python3` et `git` sont présents par défaut sur macOS et sur la plupart des distributions.
-`jq` s'installe avec `brew install jq` ou `apt install jq`.
-
-### Installer ccstatusline
-
-Le mode recommandé est le préfixe privé, qui n'exige ni `sudo` ni modification du `PATH` :
+**`ccstatusline`** — si tu ne l'as pas encore :
 
 ```bash
 npx ccstatusline@2.2.19
 ```
 
-et choisir l'installation *pinned* dans le menu. Le binaire atterrit alors dans
-`~/.claude/tools/bin/ccstatusline`.
+puis choisis l'installation *pinned* dans le menu (pas de `sudo`, pas de `PATH` à bricoler).
+`npm install -g ccstatusline@2.2.19` marche aussi bien.
 
-L'installation npm globale fonctionne tout aussi bien :
+**`python3`**, **`jq`**, **`git`** — les deux premiers portent les barres et la fusion de config.
+Sur macOS il ne manque généralement que `jq` : `brew install jq`.
+
+## Options
 
 ```bash
-npm install -g ccstatusline@2.2.19
+./install.sh --dry-run          # montre tout ce qu'il ferait, n'écrit rien
+./install.sh --path <chemin>    # chemin explicite, aucune question posée
 ```
 
-`install.sh` cherche le binaire dans les emplacements habituels, puis sur le `PATH`.
-S'il ne trouve rien, il demande le chemin et le vérifie avant de continuer.
+<details>
+<summary><b>Ce que l'installeur touche exactement</b></summary>
 
-## Ce que fait `install.sh`
+<br>
 
-1. Résout le binaire `ccstatusline` et vérifie qu'il répond bien.
-2. Compare sa version à celle avec laquelle cette configuration a été testée (avertissement seulement).
-3. Copie `context-bar.py` et `burn-bar.py` dans `~/.config/ccstatusline/`.
-4. Y écrit `settings.json`, en remplaçant le marqueur `__HOME__` par le `HOME` réel.
-5. Fusionne **uniquement** la clé `statusLine` dans `~/.claude/settings.json`.
+| Fichier | Action |
+|---|---|
+| `~/.config/ccstatusline/context-bar.py` | copié |
+| `~/.config/ccstatusline/burn-bar.py` | copié |
+| `~/.config/ccstatusline/settings.json` | écrit, avec `__HOME__` remplacé par ton `HOME` |
+| `~/.claude/settings.json` | seule la clé `statusLine` est fusionnée |
 
-Tout fichier écrasé est d'abord sauvegardé en `<nom>.bak-<horodatage>`.
-Le script est idempotent : le relancer ne casse rien.
+Tes plugins, permissions et autres réglages Claude Code ne sont pas touchés : la fusion passe
+par `jq` et ne réécrit que `statusLine`. Chaque fichier écrasé est d'abord copié en
+`<nom>.bak-<horodatage>`.
 
-### Options
+</details>
 
-```
-./install.sh --dry-run          # montre les actions sans rien écrire
-./install.sh --path <chemin>    # chemin explicite, sans question posée
-```
+<details>
+<summary><b>Pourquoi une substitution et pas des liens symboliques</b></summary>
 
-## Pourquoi une substitution plutôt que des liens symboliques
+<br>
 
-Le `settings.json` de ccstatusline contient des chemins absolus vers les scripts des barres.
-Un `ln -s` laisserait ces chemins pointant vers le `HOME` d'origine — et `/Users/...` sur macOS
-ne ressemble pas à `/home/...` sur Linux. D'où le marqueur `__HOME__`, substitué à l'installation.
+Le `settings.json` de ccstatusline stocke des chemins **absolus** vers les scripts des barres.
+Un `ln -s` les laisserait pointer vers le `HOME` d'origine — et `/Users/toi` sur macOS ne
+ressemble en rien à `/home/toi` sur Linux. D'où le marqueur `__HOME__`, substitué à l'installation.
 
 Les fichiers sont copiés plutôt que liés parce que ccstatusline réécrit son `settings.json`
-quand on le configure via son interface : un lien vers le dépôt produirait des diffs git parasites.
+dès qu'on le configure via son interface : un lien vers le dépôt produirait des diffs git parasites
+à chaque réglage.
 
-## Tests
+Même logique pour la détection du binaire : elle ne passe **pas** par le `PATH`, parce que le mode
+d'installation recommandé pose le binaire dans `~/.claude/tools/bin/`, qui n'y figure pas.
+L'installeur sonde donc les emplacements connus, puis le `PATH`, puis te demande.
+
+</details>
+
+<details>
+<summary><b>Tests</b></summary>
+
+<br>
 
 ```bash
 ./test/install_test.sh
 ```
 
-Chaque cas s'exécute dans un `HOME` jetable avec un faux binaire ccstatusline ;
-le `HOME` réel n'est jamais touché.
+Chaque cas s'exécute dans un `HOME` jetable avec un faux binaire ccstatusline — détection,
+fusion non destructive, idempotence, rejet des mauvais chemins, boucle interactive.
+Ton `HOME` réel n'est jamais touché.
+
+</details>
 
 ## Licence
 
