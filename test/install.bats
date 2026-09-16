@@ -175,7 +175,7 @@ setup() { setup_fake_home; }
     local good; good="$(fake_ccstatusline 2.2.19 "$HOME/cache")"
     printf '/tmp/nexistepas\n%s\n' "$good" > "$BATS_TEST_TMPDIR/replies"
 
-    PATH="/usr/bin:/bin" script -qec "'$INSTALL'" /dev/null \
+    PATH="/usr/bin:/bin" run_in_pty "'$INSTALL'" \
         < "$BATS_TEST_TMPDIR/replies" > "$BATS_TEST_TMPDIR/out" 2>&1
 
     grep -q "n'existe pas" "$BATS_TEST_TMPDIR/out"

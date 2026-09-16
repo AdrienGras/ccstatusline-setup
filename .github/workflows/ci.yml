@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer bats
+        run: npm install -g bats
+
+      # jq est présent sur les deux images GitHub, mais l'installeur en dépend :
+      # autant échouer ici avec un message clair plutôt qu'au milieu d'un test.
+      - name: Vérifier les prérequis
+        run: |
+          set -eu
+          for tool in jq python3 git bats; do
+            command -v "$tool" >/dev/null 2>&1 || { echo "manquant : $tool"; exit 1; }
+            printf '%-8s %s\n' "$tool" "$(command -v "$tool")"
+          done
+          echo "bash     $(bash --version | head -1)"
+
+      - name: Tests
+        run: bats --print-output-on-failure test/
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ruff
+        uses: astral-sh/ruff-action@v3
+        with:
+          args: check --output-format github
+
+      - name: shellcheck
+        run: shellcheck install.sh test/test_helper.bash

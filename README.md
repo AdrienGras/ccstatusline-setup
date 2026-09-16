@@ -1,5 +1,7 @@
 # ccstatusline-setup
 
+[![CI](https://github.com/AdrienGras/ccstatusline-setup/actions/workflows/ci.yml/badge.svg)](https://github.com/AdrienGras/ccstatusline-setup/actions/workflows/ci.yml)
+
 Ma statusline [ccstatusline](https://github.com/sirmalloc/ccstatusline) pour Claude Code,
 empaquetée pour s'installer ailleurs en deux commandes. macOS et Linux.
 
@@ -143,6 +145,10 @@ ruff check .    # lint des deux scripts
 ```
 
 `bats` s'installe avec `brew install bats-core` ou `npm install -g bats`.
+
+La CI rejoue ces deux commandes sur Ubuntu **et** macOS à chaque push : la compatibilité
+entre les deux systèmes est le seul point de ce dépôt qu'on ne peut pas vérifier depuis
+une seule machine.
 
 Le formatage des scripts n'est volontairement pas délégué à `ruff format` : l'alignement
 manuel des tables de couleurs et des paliers de dégradé se lit mieux que ce qu'en ferait

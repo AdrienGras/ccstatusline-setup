@@ -37,3 +37,13 @@ ccsl_settings()   { printf '%s\n' "$XDG_CONFIG_HOME/ccstatusline/settings.json";
 
 # Valeur d'une clé dans un JSON, ou chaîne vide.
 json_get() { jq -r "$2 // empty" "$1" 2>/dev/null; }
+
+# Exécute une commande dans un pseudo-terminal, pour les tests interactifs.
+# La syntaxe de `script` diffère entre util-linux et BSD (macOS).
+run_in_pty() { # commande (chaîne shell)
+    if [ "$(uname)" = "Darwin" ]; then
+        script -q /dev/null /bin/sh -c "$1"
+    else
+        script -qec "$1" /dev/null
+    fi
+}
