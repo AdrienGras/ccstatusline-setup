@@ -48,9 +48,10 @@ def main():
     # PLW1509 : preexec_fn n'est risqué qu'avec des threads, et ce pilote est
     # mono-thread ; attacher le terminal de contrôle exige de toute façon de
     # s'exécuter entre le fork et l'exec.
-    process = subprocess.Popen(  # noqa: S603, PLW1509
+    process = subprocess.Popen(  # noqa: S603
         command, stdin=slave, stdout=slave, stderr=slave,
-        close_fds=True, preexec_fn=attach_controlling_tty)
+        close_fds=True,
+        preexec_fn=attach_controlling_tty)  # noqa: PLW1509
     os.close(slave)
     os.write(master, replies)
 
